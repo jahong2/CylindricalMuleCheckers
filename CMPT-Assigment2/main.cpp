@@ -42,6 +42,8 @@ bool MakeMove(int CMCheckersBoard[MAX_ARRAY_SIZE][MAX_ARRAY_SIZE],
 	int numRowsInBoard, int player, int fromSquareNum,
 	int toSquareNum, bool &jumped);
 
+bool isEven(int value);
+
 int main() {
 
 	int myCMCheckersBoard[MAX_ARRAY_SIZE][MAX_ARRAY_SIZE] = { 0 };
@@ -51,6 +53,44 @@ int main() {
 	int yIndicesMove[MAX_PIECES] = { 0 };
 	int yIndicesJump[MAX_PIECES] = { 0 };
 
+	const int MAX_BOARDSIZE_TRIES = 3;
+
+	int numRowsInBoard = 0;
+
+	for (int i = 0; i < MAX_BOARDSIZE_TRIES; i++)
+	{
+
+		cout << "Enter the number of squares along each edge of board\n";
+		
+		if (!(cin >> numRowsInBoard)) {
+			numRowsInBoard = 0;
+			cin.clear();
+			cin.ignore();
+			cout << "ERROR:  Board size is not an integer\n";
+		} else {
+			if (numRowsInBoard < MIN_ARRAY_SIZE) {
+				cout << "ERROR:  Board size too small\n";
+			} else if (numRowsInBoard > MAX_ARRAY_SIZE) {
+				cout << "ERROR:  Board size too large\n";
+			} else {
+				if (isEven(numRowsInBoard)) {
+					break;
+				}
+				else {
+					cout << "ERROR:  Board size odd\n";
+				}
+			}
+		}
+
+		cout << MIN_ARRAY_SIZE << " <= number of squares <= " << MAX_ARRAY_SIZE << endl;
+
+		if (i == MAX_BOARDSIZE_TRIES - 1) {
+			cout << "ERROR:  Too many errors entering the size of the board";
+
+			return -1;
+		}
+
+	}
 
 
 	return 0;
@@ -94,4 +134,14 @@ bool IsJump(int CMCheckersBoard[MAX_ARRAY_SIZE][MAX_ARRAY_SIZE], int numRowsInBo
 bool MakeMove(int CMCheckersBoard[MAX_ARRAY_SIZE][MAX_ARRAY_SIZE], int numRowsInBoard, int player, int fromSquareNum, int toSquareNum, bool & jumped)
 {
 	return false;
+}
+
+// Checks if the value provided is even, if so returns true, else returns false.
+bool isEven(int value) {
+	if (value % 2 == 0) {
+		return true;
+	}
+	else {
+		return false;
+	}
 }
