@@ -42,6 +42,8 @@ bool MakeMove(int CMCheckersBoard[MAX_ARRAY_SIZE][MAX_ARRAY_SIZE],
 	int numRowsInBoard, int player, int fromSquareNum,
 	int toSquareNum, bool &jumped);
 
+bool CheckWin(int CMCheckersBoard[MAX_ARRAY_SIZE][MAX_ARRAY_SIZE], int numRowsInBoard);
+
 bool isEven(int value);
 
 int main() {
@@ -96,42 +98,55 @@ int main() {
 	return 0;
 }
 
+// TOBEIMPLEMENTED: JASON
 void InitializeBoard(int CMCheckersBoard[MAX_ARRAY_SIZE][MAX_ARRAY_SIZE], int numRowsInBoard)
 {
 
 }
 
+// TOBEIMPLEMENTED: Max
 void DisplayBoard(int CMCheckersBoard[MAX_ARRAY_SIZE][MAX_ARRAY_SIZE], int numRowsInBoard)
 {
 
 }
 
+// TOBEIMPLEMENTED: Ryan
 int CountJumps(int CMCheckersBoard[MAX_ARRAY_SIZE][MAX_ARRAY_SIZE], int numRowsInBoard, int player, int xLocArray[], int yLocArray[])
 {
 	return 0;
 }
 
+// TOBEIMPLEMENTED: Jason
 bool CheckList(int inArray1[], int inArray2[], int xIndex, int yIndex)
 {
 	return false;
 }
-
+// TOBEIMPLEMENTED: Max
 int CountMove1Squares(int CMCheckersBoard[MAX_ARRAY_SIZE][MAX_ARRAY_SIZE], int numRowsInBoard, int player, int xLocArray[], int yLocArray[])
 {
 	return 0;
 }
 
+// TOBEIMPLEMENTED: Jason
 bool IsMove1Square(int CMCheckersBoard[MAX_ARRAY_SIZE][MAX_ARRAY_SIZE], int numRowsInBoard, int player, int xLoc, int yLoc)
 {
 	return false;
 }
 
+// TOBEIMPLEMENTED: Max
 bool IsJump(int CMCheckersBoard[MAX_ARRAY_SIZE][MAX_ARRAY_SIZE], int numRowsInBoard, int player, int xLoc, int yLoc)
 {
 	return false;
 }
 
+// TOBEIMPLEMENTED: Ryan
 bool MakeMove(int CMCheckersBoard[MAX_ARRAY_SIZE][MAX_ARRAY_SIZE], int numRowsInBoard, int player, int fromSquareNum, int toSquareNum, bool & jumped)
+{
+	return false;
+}
+
+// TOBEIMPLEMENTED: Max
+bool CheckWin(int CMCheckersBoard[MAX_ARRAY_SIZE][MAX_ARRAY_SIZE], int numRowsInBoard)
 {
 	return false;
 }
