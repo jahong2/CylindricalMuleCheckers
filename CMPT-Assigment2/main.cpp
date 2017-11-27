@@ -1,7 +1,7 @@
 #include <iostream>
 
 using namespace std;
-
+// Ryan was here 
 const int MAX_ARRAY_SIZE = 18;
 const int MIN_ARRAY_SIZE = 8;
 const int MAX_PIECES = 72;
