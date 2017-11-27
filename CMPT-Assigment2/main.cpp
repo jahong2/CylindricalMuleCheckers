@@ -97,7 +97,7 @@ int main() {
 	return 0;
 }
 
-// TOBEIMPLEMENTED: JASON
+// TOBEIMPLEMENTED: JASON - Finish by tomorrow
 void InitializeBoard(int CMCheckersBoard[MAX_ARRAY_SIZE][MAX_ARRAY_SIZE], int numRowsInBoard)
 {
 
