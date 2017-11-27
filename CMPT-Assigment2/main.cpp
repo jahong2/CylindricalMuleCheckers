@@ -1,5 +1,4 @@
 #include <iostream>
-#include <math.h>
 //Hello Jason was here.
 using namespace std;
 
