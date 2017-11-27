@@ -1,5 +1,4 @@
 #include <iostream>
-//Hello Jason was here.
 using namespace std;
 
 const int MAX_ARRAY_SIZE = 18;
