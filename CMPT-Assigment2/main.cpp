@@ -104,12 +104,59 @@ int main() {
 
 	}
 
+	InitializeBoard(myCMCheckersBoard, numRowsInBoard);
+	DisplayBoard(myCMCheckersBoard, numRowsInBoard);
+
 	return 0;
 }
 
-// TOBEIMPLEMENTED: JASON - Finish by tomorrow
+// IMPLEMENTED: MAX
+// This method puts the checkers on the board, initializes it by checking some basic properties of the location.
 void InitializeBoard(int CMCheckersBoard[MAX_ARRAY_SIZE][MAX_ARRAY_SIZE], int numRowsInBoard)
 {
+
+	int currentRow = 1;
+	int noPeicesPositionInitial = (numRowsInBoard / 2);
+
+	for (int i = 0; i < numRowsInBoard; i++)
+	{
+		for (int j = 0; j < numRowsInBoard; j++)
+		{
+			
+			if (!isEven(currentRow) && isEven(j + (i * 10))) {
+				CMCheckersBoard[i][j] = 0;
+				continue;
+			} else if (isEven(currentRow) && !isEven(j + (i * 10))) {
+				CMCheckersBoard[i][j] = 0;
+				continue;
+			}
+
+			// Since it's gotten to this point, clearly we need to place a checker, let's determine which one.
+			//	Unless of course we're in no man's land.
+
+			if (currentRow == 1) { // White mule
+				CMCheckersBoard[i][j] = 2;
+			}
+			else if (currentRow == numRowsInBoard) { // Red Mule
+				CMCheckersBoard[i][j] = 5;
+			}
+			else if (currentRow == noPeicesPositionInitial || currentRow == noPeicesPositionInitial + 1) {
+				// Blank rows here.
+				CMCheckersBoard[i][j] = 0;
+			}
+			else if (currentRow < noPeicesPositionInitial) {
+				// Place white soldier
+				CMCheckersBoard[i][j] = 1;
+			}
+			else {
+				// place red soldier
+				CMCheckersBoard[i][j] = 4;
+			}
+
+
+		}
+		currentRow++;
+	}
 
 }
 
