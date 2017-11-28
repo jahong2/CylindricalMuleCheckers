@@ -1,5 +1,6 @@
 #include <iostream>
 #include <iomanip>
+#include <math.h>
 #include <string>
 
 using namespace std;
@@ -56,6 +57,7 @@ bool CheckWin(int CMCheckersBoard[MAX_ARRAY_SIZE][MAX_ARRAY_SIZE], int numRowsIn
 
 bool isEven(int value);
 int checkerBelongsToPlayer(int checkerValue);
+int getWrappedCoordinate(int locX, int numRowsInBoard);
 
 int main() {
 
@@ -107,7 +109,7 @@ int main() {
 
 	InitializeBoard(myCMCheckersBoard, numRowsInBoard);
 	DisplayBoard(myCMCheckersBoard, numRowsInBoard);
-
+	
 	return 0;
 }
 
@@ -256,9 +258,76 @@ bool IsMove1Square(int CMCheckersBoard[MAX_ARRAY_SIZE][MAX_ARRAY_SIZE], int numR
 	return false;
 }
 
-// TOBEIMPLEMENTED: Max
+// IMPLEMENTED: Max
+// This method checks to see if a particular peice can jump, takes into account impossible off-board moves.
+//	NOTE: Note NOT tested due to other methods not being completed. Also there is a lot of repetion which should
+//        Be moved into it's own method, do that later, will cut down on checks needed.
 bool IsJump(int CMCheckersBoard[MAX_ARRAY_SIZE][MAX_ARRAY_SIZE], int numRowsInBoard, int player, int xLoc, int yLoc)
 {
+	if (checkerBelongsToPlayer(CMCheckersBoard[yLoc][xLoc])) {
+		// The checker indeed belongs to the player.
+		if (player == 1) { // WHITE PLAYER
+			
+			if (yLoc + 1 <= numRowsInBoard - 1) {
+				// DIAG. RIGHT
+				if (checkerBelongsToPlayer(CMCheckersBoard[yLoc + 1][getWrappedCoordinate(xLoc - 1, numRowsInBoard)]) == 0
+					&& CMCheckersBoard[yLoc + 1][getWrappedCoordinate(xLoc - 2, numRowsInBoard)] == 0) {
+					return true;
+				} else if (checkerBelongsToPlayer(CMCheckersBoard[yLoc + 1][getWrappedCoordinate(xLoc + 1, numRowsInBoard)]) == 0
+					&& CMCheckersBoard[yLoc + 1][getWrappedCoordinate(xLoc + 2, numRowsInBoard)] == 0) {
+					return true;
+				}
+
+			}
+			else {
+				// IF OUR PEICE IS A KING, CHECK THE BACKSIDE
+				if (CMCheckersBoard[xLoc][yLoc] == 3) {
+					if (yLoc - 1 >= 0) {
+						if (checkerBelongsToPlayer(CMCheckersBoard[yLoc - 1][getWrappedCoordinate(xLoc + 1, numRowsInBoard)]) == 0
+							&& CMCheckersBoard[yLoc - 1][getWrappedCoordinate(xLoc + 2, numRowsInBoard)] == 0) {
+							return true;
+						}
+						else if (checkerBelongsToPlayer(CMCheckersBoard[yLoc - 1][getWrappedCoordinate(xLoc - 1, numRowsInBoard)]) == 0
+							&& CMCheckersBoard[yLoc - 1][getWrappedCoordinate(xLoc - 2, numRowsInBoard)] == 0) {
+							return true;
+						}
+					}
+				}
+
+			}
+
+			// That check didn't work, maybe they're a king and have an option of moving?
+		}
+		else { // RED PLAYER
+			
+			if (yLoc - 1 >= 0) {
+				// DIAG. RIGHT
+				if (checkerBelongsToPlayer(CMCheckersBoard[yLoc - 1][getWrappedCoordinate(xLoc + 1, numRowsInBoard)]) == 1
+					&& CMCheckersBoard[yLoc - 1][getWrappedCoordinate(xLoc + 2, numRowsInBoard)] == 0) {
+					return true;
+				} else if (checkerBelongsToPlayer(CMCheckersBoard[yLoc - 1][getWrappedCoordinate(xLoc - 1, numRowsInBoard)]) == 1
+					&& CMCheckersBoard[yLoc - 1][getWrappedCoordinate(xLoc - 2, numRowsInBoard)] == 0) {
+					return true;
+				}
+			} else {
+				// IF OUR PEICE IS A KING, CHECK THE BACKSIDE
+				if (CMCheckersBoard[xLoc][yLoc] == 6) {
+					if (yLoc + 1 <= numRowsInBoard - 1) {
+						if (checkerBelongsToPlayer(CMCheckersBoard[yLoc + 1][getWrappedCoordinate(xLoc - 1, numRowsInBoard)]) == 1
+							&& CMCheckersBoard[yLoc + 1][getWrappedCoordinate(xLoc - 2, numRowsInBoard)] == 0) {
+							return true;
+						}
+						else if (checkerBelongsToPlayer(CMCheckersBoard[yLoc + 1][getWrappedCoordinate(xLoc + 1, numRowsInBoard)]) == 1
+							&& CMCheckersBoard[yLoc + 1][getWrappedCoordinate(xLoc + 2, numRowsInBoard)] == 0) {
+							return true;
+						}
+					}
+				}
+
+			}
+		}
+	}
+
 	return false;
 }
 
@@ -297,5 +366,23 @@ int checkerBelongsToPlayer(int checkerValue) {
 	}
 	else {
 		return -1;
+	}
+}
+
+// Our board is really a cylinder. This is because we can "go off the board"
+//	Then come back on the other side. We need to make sure that we get the correct
+//	coordinates every time we jump "off the board".
+//  NOTE: This does not check whether a jump is valid or not, just manipulates the X
+//       to wrap around the board.		 
+int getWrappedCoordinate(int locX, int numRowsInBoard) {
+	
+	if (locX >(numRowsInBoard - 1)) {
+		return locX % numRowsInBoard;
+	}
+	else if (locX < 0) {
+		return numRowsInBoard % locX;
+	}
+	else {
+		return locX;
 	}
 }
