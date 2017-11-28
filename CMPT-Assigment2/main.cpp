@@ -55,6 +55,7 @@ bool MakeMove(int CMCheckersBoard[MAX_ARRAY_SIZE][MAX_ARRAY_SIZE],
 bool CheckWin(int CMCheckersBoard[MAX_ARRAY_SIZE][MAX_ARRAY_SIZE], int numRowsInBoard);
 
 bool isEven(int value);
+int checkerBelongsToPlayer(int checkerValue);
 
 int main() {
 
@@ -215,10 +216,38 @@ bool CheckList(int inArray1[], int inArray2[], int xIndex, int yIndex)
 {
 	return false;
 }
-// TOBEIMPLEMENTED: Max
+// IMPLEMENTED: Max
+// This method returns the amount of checkers that can move one space without jumping, from a particular player.
+//		NOTE: Although assigment requires we have xLocArray, and yLocArray, since those arrays are never passed
+//            by reference, there isn't a point in putting anything in them, since they'll get erased.
+//		NOT-TESTED: Needs IsMove1Square method to work.
 int CountMove1Squares(int CMCheckersBoard[MAX_ARRAY_SIZE][MAX_ARRAY_SIZE], int numRowsInBoard, int player, int xLocArray[], int yLocArray[])
-{
-	return 0;
+{ 
+	int singleMoveCounter = 0;
+
+	for (int i = 0; i < MAX_PIECES; i++)
+	{
+		xLocArray[i] = -1;
+		yLocArray[i] = -1;
+	}
+
+	for (int i = 0; i < numRowsInBoard; i++)
+	{
+		for (int j = 0; j <= numRowsInBoard; j++)
+		{
+			// We've got our player's checker
+			if (checkerBelongsToPlayer(CMCheckersBoard[i][j]) == player) {
+				if (IsMove1Square(CMCheckersBoard, numRowsInBoard, player, j, i)) {
+					xLocArray[singleMoveCounter] = j;
+					yLocArray[singleMoveCounter] = i;		
+					singleMoveCounter++;
+				}
+			}
+		}
+
+	}
+
+	return singleMoveCounter;
 }
 
 // TOBEIMPLEMENTED: Jason
@@ -252,5 +281,21 @@ bool isEven(int value) {
 	}
 	else {
 		return false;
+	}
+}
+
+// Checks which player a checker belongs to, if it's blank, returns -1.
+int checkerBelongsToPlayer(int checkerValue) {
+
+	if (checkerValue >= 1 && checkerValue <= 3) {
+		// WHITE PLAYER
+		return 1;
+	}
+	else if (checkerValue >= 4 && checkerValue <= 6) {
+		// RED PLAYER
+		return 0;
+	}
+	else {
+		return -1;
 	}
 }
