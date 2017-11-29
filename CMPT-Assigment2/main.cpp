@@ -1,5 +1,6 @@
 #include <iostream>
 #include <iomanip>
+#include <math.h>
 #include <string>
 
 using namespace std;
@@ -28,7 +29,7 @@ const string REDSOLIDER_DISPLAY = "RS";
 const string REDMULE_DISPLAY = "RM";
 const string REDKING_DISPLAY = "RK";
 
-void InitializeBoard(int CMCheckersBoard[MAX_ARRAY_SIZE][MAX_ARRAY_SIZE], 
+void InitializeBoard(int CMCheckersBoard[MAX_ARRAY_SIZE][MAX_ARRAY_SIZE],
 	int numRowsInBoard);
 
 void DisplayBoard(int CMCheckersBoard[MAX_ARRAY_SIZE][MAX_ARRAY_SIZE],
@@ -55,6 +56,8 @@ bool MakeMove(int CMCheckersBoard[MAX_ARRAY_SIZE][MAX_ARRAY_SIZE],
 bool CheckWin(int CMCheckersBoard[MAX_ARRAY_SIZE][MAX_ARRAY_SIZE], int numRowsInBoard);
 
 bool isEven(int value);
+int checkerBelongsToPlayer(int checkerValue);
+int getWrappedCoordinate(int locX, int numRowsInBoard);
 
 int main() {
 
@@ -110,11 +113,53 @@ int main() {
 	return 0;
 }
 
-// TOBEIMPLEMENTED: JASON - Finish by tomorrow
+// IMPLEMENTED: MAX
+// This method puts the checkers on the board, initializes it by checking some basic properties of the location.
 void InitializeBoard(int CMCheckersBoard[MAX_ARRAY_SIZE][MAX_ARRAY_SIZE], int numRowsInBoard)
 {
 
-	
+	int currentRow = 1;
+	int noPeicesPositionInitial = (numRowsInBoard / 2);
+
+	for (int i = 0; i < numRowsInBoard; i++)
+	{
+		for (int j = 0; j < numRowsInBoard; j++)
+		{
+			
+			if (!isEven(currentRow) && isEven(j + (i * 10))) {
+				CMCheckersBoard[i][j] = 0;
+				continue;
+			} else if (isEven(currentRow) && !isEven(j + (i * 10))) {
+				CMCheckersBoard[i][j] = 0;
+				continue;
+			}
+
+			// Since it's gotten to this point, clearly we need to place a checker, let's determine which one.
+			//	Unless of course we're in no man's land.
+
+			if (currentRow == 1) { // White mule
+				CMCheckersBoard[i][j] = 2;
+			}
+			else if (currentRow == numRowsInBoard) { // Red Mule
+				CMCheckersBoard[i][j] = 5;
+			}
+			else if (currentRow == noPeicesPositionInitial || currentRow == noPeicesPositionInitial + 1) {
+				// Blank rows here.
+				CMCheckersBoard[i][j] = 0;
+			}
+			else if (currentRow < noPeicesPositionInitial) {
+				// Place white soldier
+				CMCheckersBoard[i][j] = 1;
+			}
+			else {
+				// place red soldier
+				CMCheckersBoard[i][j] = 4;
+			}
+
+
+		}
+		currentRow++;
+	}
 
 }
 
@@ -162,10 +207,34 @@ void DisplayBoard(int CMCheckersBoard[MAX_ARRAY_SIZE][MAX_ARRAY_SIZE], int numRo
 	}
 }
 
-// TOBEIMPLEMENTED: Ryan
+// IMPLEMENTED: Ryan
+// This method collects coordinates for all checkers that can jump, belonging to the player.
+// Returns amount of checkers that can jump.
 int CountJumps(int CMCheckersBoard[MAX_ARRAY_SIZE][MAX_ARRAY_SIZE], int numRowsInBoard, int player, int xLocArray[], int yLocArray[])
 {
-	return 0;
+	int JumpCounter = 0;
+	for (int i = 0; i < numRowsInBoard; i++)
+	{
+		xLocArray[i] = -1;
+		yLocArray[i] = -1;
+	}
+	for (int i = 0; i < numRowsInBoard; i++)
+	{
+		for (int j = 0; j < numRowsInBoard; j++)
+		{
+			if (checkerBelongsToPlayer(CMCheckersBoard[i][j])==player)
+			{
+				if (IsJump(CMCheckersBoard, numRowsInBoard, player, j, i))
+				{
+					xLocArray[JumpCounter] = j;
+					yLocArray[JumpCounter] = i;
+					JumpCounter++;
+				}
+			}
+		}
+
+	}
+	return JumpCounter;
 }
 
 // TOBEIMPLEMENTED: Jason
@@ -173,10 +242,38 @@ bool CheckList(int inArray1[], int inArray2[], int xIndex, int yIndex)
 {
 	return false;
 }
-// TOBEIMPLEMENTED: Max
+// IMPLEMENTED: Max
+// This method returns the amount of checkers that can move one space without jumping, from a particular player.
+//		NOTE: Although assigment requires we have xLocArray, and yLocArray, since those arrays are never passed
+//            by reference, there isn't a point in putting anything in them, since they'll get erased.
+//		NOT-TESTED: Needs IsMove1Square method to work.
 int CountMove1Squares(int CMCheckersBoard[MAX_ARRAY_SIZE][MAX_ARRAY_SIZE], int numRowsInBoard, int player, int xLocArray[], int yLocArray[])
-{
-	return 0;
+{ 
+	int singleMoveCounter = 0;
+
+	for (int i = 0; i < MAX_PIECES; i++)
+	{
+		xLocArray[i] = -1;
+		yLocArray[i] = -1;
+	}
+
+	for (int i = 0; i < numRowsInBoard; i++)
+	{
+		for (int j = 0; j <= numRowsInBoard; j++)
+		{
+			// We've got our player's checker
+			if (checkerBelongsToPlayer(CMCheckersBoard[i][j]) == player) {
+				if (IsMove1Square(CMCheckersBoard, numRowsInBoard, player, j, i)) {
+					xLocArray[singleMoveCounter] = j;
+					yLocArray[singleMoveCounter] = i;		
+					singleMoveCounter++;
+				}
+			}
+		}
+
+	}
+
+	return singleMoveCounter;
 }
 
 // TOBEIMPLEMENTED: Jason
@@ -185,9 +282,76 @@ bool IsMove1Square(int CMCheckersBoard[MAX_ARRAY_SIZE][MAX_ARRAY_SIZE], int numR
 	return false;
 }
 
-// TOBEIMPLEMENTED: Max
+// IMPLEMENTED: Max
+// This method checks to see if a particular peice can jump, takes into account impossible off-board moves.
+//	NOTE: Note NOT tested due to other methods not being completed. Also there is a lot of repetion which should
+//        Be moved into it's own method, do that later, will cut down on checks needed.
 bool IsJump(int CMCheckersBoard[MAX_ARRAY_SIZE][MAX_ARRAY_SIZE], int numRowsInBoard, int player, int xLoc, int yLoc)
 {
+	if (checkerBelongsToPlayer(CMCheckersBoard[yLoc][xLoc])) {
+		// The checker indeed belongs to the player.
+		if (player == 1) { // WHITE PLAYER
+			
+			if (yLoc + 1 <= numRowsInBoard - 1) {
+				// DIAG. RIGHT
+				if (checkerBelongsToPlayer(CMCheckersBoard[yLoc + 1][getWrappedCoordinate(xLoc - 1, numRowsInBoard)]) == 0
+					&& CMCheckersBoard[yLoc + 1][getWrappedCoordinate(xLoc - 2, numRowsInBoard)] == 0) {
+					return true;
+				} else if (checkerBelongsToPlayer(CMCheckersBoard[yLoc + 1][getWrappedCoordinate(xLoc + 1, numRowsInBoard)]) == 0
+					&& CMCheckersBoard[yLoc + 1][getWrappedCoordinate(xLoc + 2, numRowsInBoard)] == 0) {
+					return true;
+				}
+
+			}
+			else {
+				// IF OUR PEICE IS A KING, CHECK THE BACKSIDE
+				if (CMCheckersBoard[xLoc][yLoc] == 3) {
+					if (yLoc - 1 >= 0) {
+						if (checkerBelongsToPlayer(CMCheckersBoard[yLoc - 1][getWrappedCoordinate(xLoc + 1, numRowsInBoard)]) == 0
+							&& CMCheckersBoard[yLoc - 1][getWrappedCoordinate(xLoc + 2, numRowsInBoard)] == 0) {
+							return true;
+						}
+						else if (checkerBelongsToPlayer(CMCheckersBoard[yLoc - 1][getWrappedCoordinate(xLoc - 1, numRowsInBoard)]) == 0
+							&& CMCheckersBoard[yLoc - 1][getWrappedCoordinate(xLoc - 2, numRowsInBoard)] == 0) {
+							return true;
+						}
+					}
+				}
+
+			}
+
+			// That check didn't work, maybe they're a king and have an option of moving?
+		}
+		else { // RED PLAYER
+			
+			if (yLoc - 1 >= 0) {
+				// DIAG. RIGHT
+				if (checkerBelongsToPlayer(CMCheckersBoard[yLoc - 1][getWrappedCoordinate(xLoc + 1, numRowsInBoard)]) == 1
+					&& CMCheckersBoard[yLoc - 1][getWrappedCoordinate(xLoc + 2, numRowsInBoard)] == 0) {
+					return true;
+				} else if (checkerBelongsToPlayer(CMCheckersBoard[yLoc - 1][getWrappedCoordinate(xLoc - 1, numRowsInBoard)]) == 1
+					&& CMCheckersBoard[yLoc - 1][getWrappedCoordinate(xLoc - 2, numRowsInBoard)] == 0) {
+					return true;
+				}
+			} else {
+				// IF OUR PEICE IS A KING, CHECK THE BACKSIDE
+				if (CMCheckersBoard[xLoc][yLoc] == 6) {
+					if (yLoc + 1 <= numRowsInBoard - 1) {
+						if (checkerBelongsToPlayer(CMCheckersBoard[yLoc + 1][getWrappedCoordinate(xLoc - 1, numRowsInBoard)]) == 1
+							&& CMCheckersBoard[yLoc + 1][getWrappedCoordinate(xLoc - 2, numRowsInBoard)] == 0) {
+							return true;
+						}
+						else if (checkerBelongsToPlayer(CMCheckersBoard[yLoc + 1][getWrappedCoordinate(xLoc + 1, numRowsInBoard)]) == 1
+							&& CMCheckersBoard[yLoc + 1][getWrappedCoordinate(xLoc + 2, numRowsInBoard)] == 0) {
+							return true;
+						}
+					}
+				}
+
+			}
+		}
+	}
+
 	return false;
 }
 
@@ -210,5 +374,39 @@ bool isEven(int value) {
 	}
 	else {
 		return false;
+	}
+}
+
+// Checks which player a checker belongs to, if it's blank, returns -1.
+int checkerBelongsToPlayer(int checkerValue) {
+
+	if (checkerValue >= 1 && checkerValue <= 3) {
+		// WHITE PLAYER
+		return 1;
+	}
+	else if (checkerValue >= 4 && checkerValue <= 6) {
+		// RED PLAYER
+		return 0;
+	}
+	else {
+		return -1;
+	}
+}
+
+// Our board is really a cylinder. This is because we can "go off the board"
+//	Then come back on the other side. We need to make sure that we get the correct
+//	coordinates every time we jump "off the board".
+//  NOTE: This does not check whether a jump is valid or not, just manipulates the X
+//       to wrap around the board.		 
+int getWrappedCoordinate(int locX, int numRowsInBoard) {
+	
+	if (locX >(numRowsInBoard - 1)) {
+		return locX % numRowsInBoard;
+	}
+	else if (locX < 0) {
+		return numRowsInBoard % locX;
+	}
+	else {
+		return locX;
 	}
 }
