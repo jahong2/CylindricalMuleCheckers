@@ -109,7 +109,7 @@ int main() {
 
 	InitializeBoard(myCMCheckersBoard, numRowsInBoard);
 	DisplayBoard(myCMCheckersBoard, numRowsInBoard);
-	
+
 	return 0;
 }
 
