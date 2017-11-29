@@ -28,7 +28,7 @@ const string REDSOLIDER_DISPLAY = "RS";
 const string REDMULE_DISPLAY = "RM";
 const string REDKING_DISPLAY = "RK";
 
-void InitializeBoard(int CMCheckersBoard[MAX_ARRAY_SIZE][MAX_ARRAY_SIZE],
+void InitializeBoard(int CMCheckersBoard[MAX_ARRAY_SIZE][MAX_ARRAY_SIZE], 
 	int numRowsInBoard);
 
 void DisplayBoard(int CMCheckersBoard[MAX_ARRAY_SIZE][MAX_ARRAY_SIZE],
@@ -104,6 +104,9 @@ int main() {
 
 	}
 
+	InitializeBoard(myCMCheckersBoard, numRowsInBoard);
+	DisplayBoard(myCMCheckersBoard, numRowsInBoard);
+
 	return 0;
 }
 
@@ -111,9 +114,7 @@ int main() {
 void InitializeBoard(int CMCheckersBoard[MAX_ARRAY_SIZE][MAX_ARRAY_SIZE], int numRowsInBoard)
 {
 
-
-
-
+	
 
 }
 
