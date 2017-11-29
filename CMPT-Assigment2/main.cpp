@@ -207,10 +207,34 @@ void DisplayBoard(int CMCheckersBoard[MAX_ARRAY_SIZE][MAX_ARRAY_SIZE], int numRo
 	}
 }
 
-// TOBEIMPLEMENTED: Ryan
+// IMPLEMENTED: Ryan
+// This method collects coordinates for all checkers that can jump, belonging to the player.
+// Returns amount of checkers that can jump.
 int CountJumps(int CMCheckersBoard[MAX_ARRAY_SIZE][MAX_ARRAY_SIZE], int numRowsInBoard, int player, int xLocArray[], int yLocArray[])
 {
-	return 0;
+	int JumpCounter = 0;
+	for (int i = 0; i < numRowsInBoard; i++)
+	{
+		xLocArray[i] = -1;
+		yLocArray[i] = -1;
+	}
+	for (int i = 0; i < numRowsInBoard; i++)
+	{
+		for (int j = 0; j < numRowsInBoard; j++)
+		{
+			if (checkerBelongsToPlayer(CMCheckersBoard[i][j])==player)
+			{
+				if (IsJump(CMCheckersBoard, numRowsInBoard, player, j, i))
+				{
+					xLocArray[JumpCounter] = j;
+					yLocArray[JumpCounter] = i;
+					JumpCounter++;
+				}
+			}
+		}
+
+	}
+	return JumpCounter;
 }
 
 // TOBEIMPLEMENTED: Jason
