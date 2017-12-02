@@ -29,6 +29,8 @@ const string REDSOLIDER_DISPLAY = "RS";
 const string REDMULE_DISPLAY = "RM";
 const string REDKING_DISPLAY = "RK";
 
+struct CoordinatePair { int columns; int rows; };
+
 void InitializeBoard(int CMCheckersBoard[MAX_ARRAY_SIZE][MAX_ARRAY_SIZE],
 	int numRowsInBoard);
 
@@ -55,6 +57,8 @@ bool MakeMove(int CMCheckersBoard[MAX_ARRAY_SIZE][MAX_ARRAY_SIZE],
 
 bool CheckWin(int CMCheckersBoard[MAX_ARRAY_SIZE][MAX_ARRAY_SIZE], int numRowsInBoard);
 
+CoordinatePair convertSquareNumToArrayPos(int numRowsInBoard, int squareNum);
+
 bool isEven(int value);
 int checkerBelongsToPlayer(int checkerValue);
 int getWrappedCoordinate(int locX, int numRowsInBoard);
@@ -71,6 +75,8 @@ int main() {
 	const int MAX_BOARDSIZE_TRIES = 3;
 
 	int numRowsInBoard = 0;
+	bool whiteTurn = true;
+	bool gameEnded = false;
 
 	for (int i = 0; i < MAX_BOARDSIZE_TRIES; i++)
 	{
@@ -294,10 +300,10 @@ bool IsJump(int CMCheckersBoard[MAX_ARRAY_SIZE][MAX_ARRAY_SIZE], int numRowsInBo
 			
 			if (yLoc + 1 <= numRowsInBoard - 1) {
 				// DIAG. RIGHT
-				if (checkerBelongsToPlayer(CMCheckersBoard[yLoc + 1][getWrappedCoordinate(xLoc - 1, numRowsInBoard)]) == 0
+				if (checkerBelongsToPlayer(CMCheckersBoard[yLoc + 1][getWrappedCoordinate(xLoc - 1, numRowsInBoard)]) == 2
 					&& CMCheckersBoard[yLoc + 1][getWrappedCoordinate(xLoc - 2, numRowsInBoard)] == 0) {
 					return true;
-				} else if (checkerBelongsToPlayer(CMCheckersBoard[yLoc + 1][getWrappedCoordinate(xLoc + 1, numRowsInBoard)]) == 0
+				} else if (checkerBelongsToPlayer(CMCheckersBoard[yLoc + 1][getWrappedCoordinate(xLoc + 1, numRowsInBoard)]) == 2
 					&& CMCheckersBoard[yLoc + 1][getWrappedCoordinate(xLoc + 2, numRowsInBoard)] == 0) {
 					return true;
 				}
@@ -307,11 +313,11 @@ bool IsJump(int CMCheckersBoard[MAX_ARRAY_SIZE][MAX_ARRAY_SIZE], int numRowsInBo
 				// IF OUR PEICE IS A KING, CHECK THE BACKSIDE
 				if (CMCheckersBoard[xLoc][yLoc] == 3) {
 					if (yLoc - 1 >= 0) {
-						if (checkerBelongsToPlayer(CMCheckersBoard[yLoc - 1][getWrappedCoordinate(xLoc + 1, numRowsInBoard)]) == 0
+						if (checkerBelongsToPlayer(CMCheckersBoard[yLoc - 1][getWrappedCoordinate(xLoc + 1, numRowsInBoard)]) == 2
 							&& CMCheckersBoard[yLoc - 1][getWrappedCoordinate(xLoc + 2, numRowsInBoard)] == 0) {
 							return true;
 						}
-						else if (checkerBelongsToPlayer(CMCheckersBoard[yLoc - 1][getWrappedCoordinate(xLoc - 1, numRowsInBoard)]) == 0
+						else if (checkerBelongsToPlayer(CMCheckersBoard[yLoc - 1][getWrappedCoordinate(xLoc - 1, numRowsInBoard)]) == 2
 							&& CMCheckersBoard[yLoc - 1][getWrappedCoordinate(xLoc - 2, numRowsInBoard)] == 0) {
 							return true;
 						}
@@ -355,10 +361,83 @@ bool IsJump(int CMCheckersBoard[MAX_ARRAY_SIZE][MAX_ARRAY_SIZE], int numRowsInBo
 	return false;
 }
 
-// TOBEIMPLEMENTED: Ryan
+// TOBEIMPLEMENTED: Max
+// This method moves a checker, it makes sure double jumps are accurate, and makes sure to remove peices.
+// This should also handle single jumps.
 bool MakeMove(int CMCheckersBoard[MAX_ARRAY_SIZE][MAX_ARRAY_SIZE], int numRowsInBoard, int player, int fromSquareNum, int toSquareNum, bool & jumped)
 {
-	return false;
+	int squareDifference = abs(fromSquareNum - toSquareNum);
+	CoordinatePair pair = convertSquareNumToArrayPos(numRowsInBoard, fromSquareNum);
+	int ogPeice = CMCheckersBoard[pair.rows][pair.columns];
+
+	if (squareDifference == (numRowsInBoard - 1) || squareDifference == (numRowsInBoard + 1)
+		|| squareDifference == ((2 * numRowsInBoard) - 1)) {
+		// Made a single jump
+		CMCheckersBoard[pair.rows][pair.columns] = 0;
+		pair = convertSquareNumToArrayPos(numRowsInBoard, toSquareNum);
+		CMCheckersBoard[pair.rows][pair.columns] = ogPeice;
+
+	} else if (squareDifference == ( (2 * numRowsInBoard) - 2) || squareDifference == ((2 * numRowsInBoard) + 2)
+		|| squareDifference == ((3 * numRowsInBoard) - 2)) {
+		// Made a double jump
+
+		// Check if the checker is moving in the right direction
+		if (checkerBelongsToPlayer(CMCheckersBoard[pair.rows][pair.columns]) == 1) {
+			if (!(CMCheckersBoard[pair.rows][pair.columns] == 3) && fromSquareNum > toSquareNum) {
+				// Moving the wrong way
+				cout << "\nError;  illegal move";
+				return false;
+			}
+		}
+		else if (checkerBelongsToPlayer(CMCheckersBoard[pair.rows][pair.columns]) == 2) {
+			if (!(CMCheckersBoard[pair.rows][pair.columns] == 6 && fromSquareNum < toSquareNum)) {
+				// Moving the wrong way
+				cout << "\nError;  illegal move";
+				return false;
+			}
+		}
+		CMCheckersBoard[pair.rows][pair.columns] = 0;
+		pair.columns = getWrappedCoordinate(pair.columns + 1, numRowsInBoard);
+		pair.rows = fromSquareNum > toSquareNum ? pair.rows - 1 : pair.rows + 1;
+
+		if (player == 1) {
+			// White Player
+			if (!(checkerBelongsToPlayer(CMCheckersBoard[pair.rows][pair.columns]) == 2)) {
+				pair = convertSquareNumToArrayPos(numRowsInBoard, fromSquareNum);
+				CMCheckersBoard[pair.rows][pair.columns] = ogPeice;
+				cout << "\nError;  illegal move";
+				return false;
+			}
+		} else {
+			if (!(checkerBelongsToPlayer(CMCheckersBoard[pair.rows][pair.columns]) == 1)) {
+				pair = convertSquareNumToArrayPos(numRowsInBoard, fromSquareNum);
+				CMCheckersBoard[pair.rows][pair.columns] = ogPeice;
+				cout << "\nError;  illegal move";
+				return false;
+			}
+		}
+		// Move checker and replace.
+		CMCheckersBoard[pair.rows][pair.columns] = 0;
+		pair = convertSquareNumToArrayPos(numRowsInBoard, toSquareNum);
+		CMCheckersBoard[pair.rows][pair.columns] = ogPeice;
+		
+	} else {
+		// Can't have more than a double jump in one go, therefore this is an invalid move.
+		cout << "\nError;  illegal move";
+		return false;
+	}
+
+	// Checking for a game win
+	if (player == 1 && ogPeice == 2 && pair.rows == (numRowsInBoard - 1)) {
+		// MULE WENT TO KING
+		cout << "\nWhite has created a Mule King, Red wins the game";
+	}
+	else if (player == 2 && ogPeice == 5 && pair.rows == 0) {
+		// MULE WENT TO KING
+		cout << "\nRed has created a Mule King,  White wins the game";
+	}
+
+	return true;
 }
 
 // TOBEIMPLEMENTED: Max
@@ -386,7 +465,7 @@ int checkerBelongsToPlayer(int checkerValue) {
 	}
 	else if (checkerValue >= 4 && checkerValue <= 6) {
 		// RED PLAYER
-		return 0;
+		return 2;
 	}
 	else {
 		return -1;
@@ -409,4 +488,23 @@ int getWrappedCoordinate(int locX, int numRowsInBoard) {
 	else {
 		return locX;
 	}
+}
+
+// This method takes a board square number, and returns a Coordinate pair of the,
+//	coordinates inside the array.
+CoordinatePair convertSquareNumToArrayPos(int numRowsInBoard, int squareNum) {
+
+	CoordinatePair arrayCoordinates;
+	int counter = 0;
+
+	while (squareNum >= numRowsInBoard)
+	{
+		squareNum -= numRowsInBoard;
+		counter++;
+	}
+
+	arrayCoordinates.columns = squareNum;
+	arrayCoordinates.rows = counter;
+
+	return arrayCoordinates;
 }
