@@ -279,6 +279,28 @@ int CountMove1Squares(int CMCheckersBoard[MAX_ARRAY_SIZE][MAX_ARRAY_SIZE], int n
 // TOBEIMPLEMENTED: Jason
 bool IsMove1Square(int CMCheckersBoard[MAX_ARRAY_SIZE][MAX_ARRAY_SIZE], int numRowsInBoard, int player, int xLoc, int yLoc)
 {
+	if (checkerBelongsToPlayer(CMCheckersBoard[yLoc][xLoc])){
+		if (player == 1){
+			if (yLoc + 1 <= numRowsInBoard - 1){
+				return true;
+			}
+			else if (yLoc - 1 <= numRowsInBoard - 1)
+			{
+				return true;
+			}
+			else if (yLoc + 1 <= numRowsInBoard + 1)
+			{
+				return true;
+			}
+			else if (yLoc + 1 <= numRowsInBoard - 1)
+			{
+				return true;
+			}
+		}
+		else
+		
+	}
+
 	return false;
 }
 
