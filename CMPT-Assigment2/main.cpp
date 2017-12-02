@@ -284,43 +284,68 @@ int CountMove1Squares(int CMCheckersBoard[MAX_ARRAY_SIZE][MAX_ARRAY_SIZE], int n
 
 // TOBEIMPLEMENTED: Jason
 bool IsMove1Square(int CMCheckersBoard[MAX_ARRAY_SIZE][MAX_ARRAY_SIZE], int numRowsInBoard, int player, int xLoc, int yLoc)
-{
-	if (checkerBelongsToPlayer(CMCheckersBoard[yLoc][xLoc])){
-		if (player == 1){
-			if (yLoc + 1 <= numRowsInBoard - 1){
-				if (checkerBelongsToPlayer(CMCheckersBoard[yLoc + 1][getWrappedCoordinate(xLoc - 1, numRowsInBoard)]) ==2
-					&& CMCheckersBoard[yLoc + 1][getWrappedCoordinate(xLoc -1, numRowsInBoard)] == 0)
-				{
-					return true;
-				}
-				else if (checkerBelongsToPlayer(CMCheckersBoard[yLoc + 1][getWrappedCoordinate(xLoc + 1, numRowsInBoard)]) == 2
-					&& CMCheckersBoard[yLoc + 1][getWrappedCoordinate(xLoc + 1, numRowsInBoard)] == 0) {
-					return true;
+	{
+		if (checkerBelongsToPlayer(CMCheckersBoard[yLoc][xLoc])) {
+			
+			if (player == 1) { // WHITE PLAYER
+
+				if (yLoc + 1 <= numRowsInBoard - 1) {
+				
+					if (checkerBelongsToPlayer(CMCheckersBoard[yLoc + 1][getWrappedCoordinate(xLoc - 1, numRowsInBoard)]) == 0) {
+						return true;
+					}
+					else if (checkerBelongsToPlayer(CMCheckersBoard[yLoc + 1][getWrappedCoordinate(xLoc + 1, numRowsInBoard)]) == 0) {
+						return true;
+					}
 
 				}
-		
-			}
-			else
-				if (CMCheckersBoard[xLoc][yLoc]==3)
-				{
-					if (yLoc-1 >= 0)
-					{
-						if (checkerBelongsToPlayer(CMCheckersBoard[yLoc + 1][getWrappedCoordinate(xLoc - 1, numRowsInBoard)]) == 2
-							&& CMCheckersBoard[yLoc + 1][getWrappedCoordinate(xLoc - 1, numRowsInBoard)] == 0)
-						{
-							return true;
+				else {
+					
+					if (CMCheckersBoard[xLoc][yLoc] == 3) {
+						if (yLoc - 1 >= 0) {
+							if (checkerBelongsToPlayer(CMCheckersBoard[yLoc + 1][getWrappedCoordinate(xLoc - 1, numRowsInBoard)]) == 0) {
+								return true;
+							}
+							else if (checkerBelongsToPlayer(CMCheckersBoard[yLoc + 1][getWrappedCoordinate(xLoc + 1, numRowsInBoard)]) == 0) {
+								return true;
+							}
 						}
-						else if (checkerBelongsToPlayer(CMCheckersBoard[yLoc + 1][getWrappedCoordinate(xLoc + 1, numRowsInBoard)]) == 2
-							&& CMCheckersBoard[yLoc + 1][getWrappedCoordinate(xLoc + 1, numRowsInBoard)] == 0) {
-							return true;
+					}
+
+				}
+
+				
+			}
+			else { // RED PLAYER
+
+				if (yLoc - 1 >= 0) {
+					// DIAG. RIGHT
+					if (checkerBelongsToPlayer(CMCheckersBoard[yLoc - 1][getWrappedCoordinate(xLoc + 1, numRowsInBoard)]) == 0) {
+						return true;
+					}
+					else if (checkerBelongsToPlayer(CMCheckersBoard[yLoc - 1][getWrappedCoordinate(xLoc - 1, numRowsInBoard)]) == 0) {
+						return true;
 					}
 				}
-			{
+				else {
+				
+					if (CMCheckersBoard[xLoc][yLoc] == 6) {
+						if (yLoc + 1 <= numRowsInBoard - 1) {
+							if (checkerBelongsToPlayer(CMCheckersBoard[yLoc + 1][getWrappedCoordinate(xLoc - 1, numRowsInBoard)]) == 0) {
+								return true;
+							}
+							else if (checkerBelongsToPlayer(CMCheckersBoard[yLoc + 1][getWrappedCoordinate(xLoc + 1, numRowsInBoard)]) == 0) {
+								return true;
+							}
+						}
+					}
 
+				}
+			}
 		}
-		
-	return false;
-}
+
+		return false;
+	}
 
 // IMPLEMENTED: Max
 // This method checks to see if a particular peice can jump, takes into account impossible off-board moves.
