@@ -288,25 +288,37 @@ bool IsMove1Square(int CMCheckersBoard[MAX_ARRAY_SIZE][MAX_ARRAY_SIZE], int numR
 	if (checkerBelongsToPlayer(CMCheckersBoard[yLoc][xLoc])){
 		if (player == 1){
 			if (yLoc + 1 <= numRowsInBoard - 1){
-				return true;
-			}
-			else if (yLoc - 1 <= numRowsInBoard - 1)
-			{
-				return true;
-			}
-			else if (yLoc + 1 <= numRowsInBoard + 1)
-			{
-				return true;
-			}
-			else if (yLoc + 1 <= numRowsInBoard - 1)
-			{
-				return true;
-			}
-		}
-		else
-		
-	}
+				if (checkerBelongsToPlayer(CMCheckersBoard[yLoc + 1][getWrappedCoordinate(xLoc - 1, numRowsInBoard)]) ==2
+					&& CMCheckersBoard[yLoc + 1][getWrappedCoordinate(xLoc -1, numRowsInBoard)] == 0)
+				{
+					return true;
+				}
+				else if (checkerBelongsToPlayer(CMCheckersBoard[yLoc + 1][getWrappedCoordinate(xLoc + 1, numRowsInBoard)]) == 2
+					&& CMCheckersBoard[yLoc + 1][getWrappedCoordinate(xLoc + 1, numRowsInBoard)] == 0) {
+					return true;
 
+				}
+		
+			}
+			else
+				if (CMCheckersBoard[xLoc][yLoc]==3)
+				{
+					if (yLoc-1 >= 0)
+					{
+						if (checkerBelongsToPlayer(CMCheckersBoard[yLoc + 1][getWrappedCoordinate(xLoc - 1, numRowsInBoard)]) == 2
+							&& CMCheckersBoard[yLoc + 1][getWrappedCoordinate(xLoc - 1, numRowsInBoard)] == 0)
+						{
+							return true;
+						}
+						else if (checkerBelongsToPlayer(CMCheckersBoard[yLoc + 1][getWrappedCoordinate(xLoc + 1, numRowsInBoard)]) == 2
+							&& CMCheckersBoard[yLoc + 1][getWrappedCoordinate(xLoc + 1, numRowsInBoard)] == 0) {
+							return true;
+					}
+				}
+			{
+
+		}
+		
 	return false;
 }
 
