@@ -282,10 +282,69 @@ int CountMove1Squares(int CMCheckersBoard[MAX_ARRAY_SIZE][MAX_ARRAY_SIZE], int n
 	return singleMoveCounter;
 }
 
-// TOBEIMPLEMENTED: Jason
+// Implemented Jason
 bool IsMove1Square(int CMCheckersBoard[MAX_ARRAY_SIZE][MAX_ARRAY_SIZE], int numRowsInBoard, int player, int xLoc, int yLoc)
 {
-	return false;
+		if (checkerBelongsToPlayer(CMCheckersBoard[yLoc][xLoc]) == player) {
+
+			if (player == 1) { // WHITE PLAYER
+
+				if (yLoc + 1 <= numRowsInBoard - 1) {
+
+					if (checkerBelongsToPlayer(CMCheckersBoard[yLoc + 1][getWrappedCoordinate(xLoc - 1, numRowsInBoard)]) == 0) {
+						return true;
+					}
+					else if (checkerBelongsToPlayer(CMCheckersBoard[yLoc + 1][getWrappedCoordinate(xLoc + 1, numRowsInBoard)]) == 0) {
+						return true;
+					}
+
+				}
+				else {
+
+					if (CMCheckersBoard[xLoc][yLoc] == 3) {
+						if (yLoc - 1 >= 0) {
+							if (checkerBelongsToPlayer(CMCheckersBoard[yLoc + 1][getWrappedCoordinate(xLoc - 1, numRowsInBoard)]) == 0) {
+								return true;
+							}
+							else if (checkerBelongsToPlayer(CMCheckersBoard[yLoc + 1][getWrappedCoordinate(xLoc + 1, numRowsInBoard)]) == 0) {
+								return true;
+							}
+						}
+					}
+
+				}
+
+
+			}
+			else { // RED PLAYER
+
+				if (yLoc - 1 >= 0) {
+					// DIAG. RIGHT
+					if (checkerBelongsToPlayer(CMCheckersBoard[yLoc - 1][getWrappedCoordinate(xLoc + 1, numRowsInBoard)]) == 0) {
+						return true;
+					}
+					else if (checkerBelongsToPlayer(CMCheckersBoard[yLoc - 1][getWrappedCoordinate(xLoc - 1, numRowsInBoard)]) == 0) {
+						return true;
+					}
+				}
+				else {
+
+					if (CMCheckersBoard[xLoc][yLoc] == 6) {
+						if (yLoc + 1 <= numRowsInBoard - 1) {
+							if (checkerBelongsToPlayer(CMCheckersBoard[yLoc + 1][getWrappedCoordinate(xLoc - 1, numRowsInBoard)]) == 0) {
+								return true;
+							}
+							else if (checkerBelongsToPlayer(CMCheckersBoard[yLoc + 1][getWrappedCoordinate(xLoc + 1, numRowsInBoard)]) == 0) {
+								return true;
+							}
+						}
+					}
+
+				}
+			}
+		}
+
+		return false;
 }
 
 // IMPLEMENTED: Max
@@ -294,7 +353,7 @@ bool IsMove1Square(int CMCheckersBoard[MAX_ARRAY_SIZE][MAX_ARRAY_SIZE], int numR
 //        Be moved into it's own method, do that later, will cut down on checks needed.
 bool IsJump(int CMCheckersBoard[MAX_ARRAY_SIZE][MAX_ARRAY_SIZE], int numRowsInBoard, int player, int xLoc, int yLoc)
 {
-	if (checkerBelongsToPlayer(CMCheckersBoard[yLoc][xLoc])) {
+	if (checkerBelongsToPlayer(CMCheckersBoard[yLoc][xLoc]) == player) {
 		// The checker indeed belongs to the player.
 		if (player == 1) { // WHITE PLAYER
 			
