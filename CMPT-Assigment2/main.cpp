@@ -246,7 +246,6 @@ int CountJumps(int CMCheckersBoard[MAX_ARRAY_SIZE][MAX_ARRAY_SIZE], int numRowsI
 // TOBEIMPLEMENTED: Jason
 bool CheckList(int inArray1[], int inArray2[], int xIndex, int yIndex)
 {
-
 	return false;
 }
 // IMPLEMENTED: Max
@@ -283,15 +282,15 @@ int CountMove1Squares(int CMCheckersBoard[MAX_ARRAY_SIZE][MAX_ARRAY_SIZE], int n
 	return singleMoveCounter;
 }
 
-// IMPLEMENTED: Jason
+// Implemented Jason
 bool IsMove1Square(int CMCheckersBoard[MAX_ARRAY_SIZE][MAX_ARRAY_SIZE], int numRowsInBoard, int player, int xLoc, int yLoc)
-	{
-		if (checkerBelongsToPlayer(CMCheckersBoard[yLoc][xLoc])) {
-			
+{
+		if (checkerBelongsToPlayer(CMCheckersBoard[yLoc][xLoc]) == player) {
+
 			if (player == 1) { // WHITE PLAYER
 
 				if (yLoc + 1 <= numRowsInBoard - 1) {
-				
+
 					if (checkerBelongsToPlayer(CMCheckersBoard[yLoc + 1][getWrappedCoordinate(xLoc - 1, numRowsInBoard)]) == 0) {
 						return true;
 					}
@@ -301,7 +300,7 @@ bool IsMove1Square(int CMCheckersBoard[MAX_ARRAY_SIZE][MAX_ARRAY_SIZE], int numR
 
 				}
 				else {
-					
+
 					if (CMCheckersBoard[xLoc][yLoc] == 3) {
 						if (yLoc - 1 >= 0) {
 							if (checkerBelongsToPlayer(CMCheckersBoard[yLoc + 1][getWrappedCoordinate(xLoc - 1, numRowsInBoard)]) == 0) {
@@ -315,7 +314,7 @@ bool IsMove1Square(int CMCheckersBoard[MAX_ARRAY_SIZE][MAX_ARRAY_SIZE], int numR
 
 				}
 
-				
+
 			}
 			else { // RED PLAYER
 
@@ -329,7 +328,7 @@ bool IsMove1Square(int CMCheckersBoard[MAX_ARRAY_SIZE][MAX_ARRAY_SIZE], int numR
 					}
 				}
 				else {
-				
+
 					if (CMCheckersBoard[xLoc][yLoc] == 6) {
 						if (yLoc + 1 <= numRowsInBoard - 1) {
 							if (checkerBelongsToPlayer(CMCheckersBoard[yLoc + 1][getWrappedCoordinate(xLoc - 1, numRowsInBoard)]) == 0) {
@@ -346,7 +345,7 @@ bool IsMove1Square(int CMCheckersBoard[MAX_ARRAY_SIZE][MAX_ARRAY_SIZE], int numR
 		}
 
 		return false;
-	}
+}
 
 // IMPLEMENTED: Max
 // This method checks to see if a particular peice can jump, takes into account impossible off-board moves.
@@ -354,7 +353,7 @@ bool IsMove1Square(int CMCheckersBoard[MAX_ARRAY_SIZE][MAX_ARRAY_SIZE], int numR
 //        Be moved into it's own method, do that later, will cut down on checks needed.
 bool IsJump(int CMCheckersBoard[MAX_ARRAY_SIZE][MAX_ARRAY_SIZE], int numRowsInBoard, int player, int xLoc, int yLoc)
 {
-	if (checkerBelongsToPlayer(CMCheckersBoard[yLoc][xLoc])) {
+	if (checkerBelongsToPlayer(CMCheckersBoard[yLoc][xLoc]) == player) {
 		// The checker indeed belongs to the player.
 		if (player == 1) { // WHITE PLAYER
 			
@@ -500,9 +499,64 @@ bool MakeMove(int CMCheckersBoard[MAX_ARRAY_SIZE][MAX_ARRAY_SIZE], int numRowsIn
 	return true;
 }
 
-// TOBEIMPLEMENTED: Max
+// Implemented Max
+// Checks if a player has one.
 bool CheckWin(int CMCheckersBoard[MAX_ARRAY_SIZE][MAX_ARRAY_SIZE], int numRowsInBoard)
 {
+	int redMules = 0;
+	int whiteMules = 0;
+	int redSoliders = 0;
+	int whiteSoliders = 0;
+	int redKings = 0;
+	int whiteKings = 0;
+	int currentPeice = 0;
+
+	for (int i = 0; i < numRowsInBoard; i++)
+	{
+		for (int j = 0; i < numRowsInBoard; i++)
+		{
+			currentPeice = CMCheckersBoard[i][j];
+
+			switch (currentPeice)
+			{
+				 case 1: {
+					whiteSoliders++;
+					continue;
+				} case 2: {
+					 whiteMules++;
+					continue;
+				} case 3: {
+					whiteKings++;
+					continue;
+				} case 4: {
+					redSoliders++;
+					continue;
+				} case 5: {
+					redMules++;
+					continue;
+				} case 6: {
+					redKings++;
+					continue;
+				} default:
+					break;
+			}
+		}
+	}
+
+	if (redMules == 0) {
+		cout << "\nThe Red Player has won the game by losing all of the Red Mules";
+		return true;
+	} else if (whiteMules == 0) {
+		cout << "\nThe White Player has won the game by losing all of the White Mules";
+		return true;
+	} else if (whiteSoliders == 0 && whiteKings == 0) {
+		cout << "\nThe White Player has won by capturing all of the red players soldiers and kings";
+		return true;
+	} else if (redSoliders == 0 && redKings == 0) {
+		cout << "\nThe Red Player has won by capturing all of the white players soldiers and kings";
+		return true;
+	}
+
 	return false;
 }
 
