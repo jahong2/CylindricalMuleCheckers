@@ -500,6 +500,19 @@ bool MakeMove(int CMCheckersBoard[MAX_ARRAY_SIZE][MAX_ARRAY_SIZE], int numRowsIn
 		return false;
 	}
 
+	// Check in general whether the peice is at the king promotion spot.
+	if (pair.rows == 0) {
+		if (checkerBelongsToPlayer(CMCheckersBoard[pair.rows][pair.columns]) == 2) {
+			// WE need to promot it to a red king
+			CMCheckersBoard[pair.rows][pair.columns] = 6;
+		}
+	} else if (pair.rows == (numRowsInBoard - 1)) {
+		if (checkerBelongsToPlayer(CMCheckersBoard[pair.rows][pair.columns]) == 1) {
+			// WE need to promot it to a white king
+			CMCheckersBoard[pair.rows][pair.columns] = 3;
+		}
+	}
+
 	// Checking for a game win
 	if (player == 1 && ogPeice == 2 && pair.rows == (numRowsInBoard - 1)) {
 		// MULE WENT TO KING
