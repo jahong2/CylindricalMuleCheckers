@@ -499,9 +499,64 @@ bool MakeMove(int CMCheckersBoard[MAX_ARRAY_SIZE][MAX_ARRAY_SIZE], int numRowsIn
 	return true;
 }
 
-// TOBEIMPLEMENTED: Max
+// Implemented Max
+// Checks if a player has one.
 bool CheckWin(int CMCheckersBoard[MAX_ARRAY_SIZE][MAX_ARRAY_SIZE], int numRowsInBoard)
 {
+	int redMules = 0;
+	int whiteMules = 0;
+	int redSoliders = 0;
+	int whiteSoliders = 0;
+	int redKings = 0;
+	int whiteKings = 0;
+	int currentPeice = 0;
+
+	for (int i = 0; i < numRowsInBoard; i++)
+	{
+		for (int j = 0; i < numRowsInBoard; i++)
+		{
+			currentPeice = CMCheckersBoard[i][j];
+
+			switch (currentPeice)
+			{
+				 case 1: {
+					whiteSoliders++;
+					continue;
+				} case 2: {
+					 whiteMules++;
+					continue;
+				} case 3: {
+					whiteKings++;
+					continue;
+				} case 4: {
+					redSoliders++;
+					continue;
+				} case 5: {
+					redMules++;
+					continue;
+				} case 6: {
+					redKings++;
+					continue;
+				} default:
+					break;
+			}
+		}
+	}
+
+	if (redMules == 0) {
+		cout << "\nThe Red Player has won the game by losing all of the Red Mules";
+		return true;
+	} else if (whiteMules == 0) {
+		cout << "\nThe White Player has won the game by losing all of the White Mules";
+		return true;
+	} else if (whiteSoliders == 0 && whiteKings == 0) {
+		cout << "\nThe White Player has won by capturing all of the red players soldiers and kings";
+		return true;
+	} else if (redSoliders == 0 && redKings == 0) {
+		cout << "\nThe Red Player has won by capturing all of the white players soldiers and kings";
+		return true;
+	}
+
 	return false;
 }
 
