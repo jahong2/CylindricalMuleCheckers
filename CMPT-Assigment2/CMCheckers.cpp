@@ -62,6 +62,8 @@ CoordinatePair convertSquareNumToArrayPos(int numRowsInBoard, int squareNum);
 bool isEven(int value);
 int checkerBelongsToPlayer(int checkerValue);
 int getWrappedCoordinate(int locX, int numRowsInBoard);
+bool isArrayEmpty(int myArray[], int numRowsInBoard);
+bool isInArray(int locXArray[], int locYArray[], int maxPieces, int locX, int locY);
 
 int main() {
 
@@ -75,8 +77,15 @@ int main() {
 	const int MAX_BOARDSIZE_TRIES = 3;
 
 	int numRowsInBoard = 0;
+	int squareNumber = -1;
+	int squareNumber2 = -1;
 	bool whiteTurn = true;
+	bool correctInput = false;
 	bool gameEnded = false;
+	bool jumped = false;
+
+	CoordinatePair moveFrom;
+	CoordinatePair moveTo;
 
 	for (int i = 0; i < MAX_BOARDSIZE_TRIES; i++)
 	{
@@ -91,15 +100,12 @@ int main() {
 		} else {
 			if (numRowsInBoard < MIN_ARRAY_SIZE) {
 				cout << "ERROR:  Board size too small\n";
+			} else if (!isEven(numRowsInBoard)) {
+				cout << "ERROR: Board size odd.\n";
 			} else if (numRowsInBoard > MAX_ARRAY_SIZE) {
 				cout << "ERROR:  Board size too large\n";
 			} else {
-				if (isEven(numRowsInBoard)) {
-					break;
-				}
-				else {
-					cout << "ERROR:  Board size odd\n";
-				}
+				break;
 			}
 		}
 
@@ -115,6 +121,229 @@ int main() {
 
 	InitializeBoard(myCMCheckersBoard, numRowsInBoard);
 	DisplayBoard(myCMCheckersBoard, numRowsInBoard);
+
+	while (!gameEnded)
+	{
+		if (whiteTurn) {
+			if (CountJumps(myCMCheckersBoard, numRowsInBoard, 1, xIndicesJump, yIndicesJump) <= 0 &&
+				CountMove1Squares(myCMCheckersBoard, numRowsInBoard, 1, xIndicesMove, yIndicesMove) <= 0) {
+				// No moves
+				cout << "\nWhite is unable to move.";
+				cout << "\nGAME OVER, Red has won.";
+				cout << "\nEnter any character to close the game.";
+				// PUT CIN STATEMENT HERE
+				return 0;			
+			}
+		}
+		else {
+			if (CountJumps(myCMCheckersBoard, numRowsInBoard, 1, xIndicesJump, yIndicesJump) <= 0 
+				&& CountMove1Squares(myCMCheckersBoard, numRowsInBoard, 1, xIndicesMove, yIndicesMove) <= 0) {
+				// No moves
+				cout << "\nRed is unable to move.";
+				cout << "\nGAME OVER, White has won.";
+				cout << "\nEnter any character to close the game.";
+				// PUT CIN STATEMENT HERE
+				return 0;
+			}
+		}
+
+		
+		if (whiteTurn) {
+			cout << "\nWhite takes a turn.";
+		}
+		else {
+			cout << "\nRed takes a turn.";
+		}
+		
+
+		while (!correctInput)
+		{
+			cout << "\nEnter the square number of the checker you want to move\n";
+
+			if (!(cin >> squareNumber)) {
+				squareNumber = -1;
+				cin.clear();
+				cin.ignore();
+				cout << "\nERROR: You did not enter an integer";
+				cout << "\nTry again";
+				continue;
+			}
+			else {
+
+				moveFrom = convertSquareNumToArrayPos(numRowsInBoard, squareNumber);
+
+				if (squareNumber > (numRowsInBoard * numRowsInBoard) - 1 || squareNumber < 0) {
+					cout << "ERROR: That square is not on the board.";
+					cout << "\nTry again";
+					continue;
+				}
+				else if (((checkerBelongsToPlayer(myCMCheckersBoard[moveFrom.rows][moveFrom.columns]) == 2 && whiteTurn)) ||
+					((checkerBelongsToPlayer(myCMCheckersBoard[moveFrom.rows][moveFrom.columns]) == 1 && !whiteTurn))) {
+					cout << "ERROR: That square contains an opponent's checker.";
+					cout << "\nTry again";
+					continue;
+				}
+				else if (checkerBelongsToPlayer(myCMCheckersBoard[moveFrom.rows][moveFrom.columns]) == -1) {
+					cout << "ERROR: That square is empty.";
+					cout << "\nTry again";
+					continue;
+				}
+				else if (!isArrayEmpty(xIndicesJump, numRowsInBoard) && !CheckList(xIndicesJump, yIndicesJump,
+					moveFrom.columns, moveFrom.rows)) {
+
+					cout << "ERROR: You can jump with another checker, you may not move your chosen checker.";
+					cout << "\nYou can jump using checkers on the following squares: ";
+
+					for (int i = 0; i < numRowsInBoard; i++)
+					{
+						if (xIndicesJump[i] != -1 && yIndicesJump[i] != -1) {
+							cout << (i * numRowsInBoard) + xIndicesJump[i] << " ";
+						}
+					}
+
+					cout << "\nTry again";
+					continue;
+				} else if ((!CheckList(xIndicesJump, yIndicesJump, moveFrom.columns, moveFrom.rows)) &&
+					(!CheckList(xIndicesMove, yIndicesMove, moveFrom.columns, moveFrom.rows))) {
+					cout << "ERROR: There is no legal move for this checker.";
+					cout << "\nTry again";
+					// DEBUG
+					continue;
+				}
+				
+			}
+			correctInput = true;
+		}
+
+		correctInput = false;
+		while (!correctInput)
+		{
+			cout << "\nEnter the square number of the square you want to move your checker to\n";
+
+			if (!(cin >> squareNumber2)) {
+				squareNumber2 = -1;
+				cin.clear();
+				cin.ignore();
+				cout << "\nERROR: You did not enter an integer";
+				cout << "\nTry again";
+				continue;
+			} else {
+
+				moveTo = convertSquareNumToArrayPos(numRowsInBoard, squareNumber2);
+
+				if (squareNumber2 > (numRowsInBoard * numRowsInBoard) - 1 || squareNumber2 < 0) {
+					cout << "ERROR: It is not possible to move to a square that is not on the board";
+					cout << "\nTry again";
+					continue;
+				}
+				else if (!(checkerBelongsToPlayer(myCMCheckersBoard[moveTo.rows][moveTo.columns]) == -1)) {
+					cout << "ERROR: It is not possible to move to a square that is already occupied.";
+					cout << "\nTry again";
+					continue;
+				}
+				else if (abs(squareNumber - squareNumber2) == (numRowsInBoard - 1) || abs(squareNumber - squareNumber2) == (numRowsInBoard + 1)) {
+					
+					if (CheckList(xIndicesJump, yIndicesJump, moveTo.columns, moveTo.rows)) {
+						cout << "ERROR: You can jump with this checker, you must jump not move 1 space.";
+						cout << "\nTry again";
+						continue;
+					}
+					
+				}
+			
+				if ((!(MakeMove(myCMCheckersBoard, numRowsInBoard, 1, squareNumber, squareNumber2, jumped)) && whiteTurn) ||
+					(!(MakeMove(myCMCheckersBoard, numRowsInBoard, 2, squareNumber, squareNumber2, jumped)) && !whiteTurn)) {
+					cout << "\nERROR: Moving to that square is not legal, Try again.";
+					continue;
+				}
+
+			}
+			correctInput = true;
+		}
+		correctInput = false;
+
+
+		if ((!(MakeMove(myCMCheckersBoard, numRowsInBoard, 1, squareNumber, squareNumber2, jumped)) && whiteTurn) || 
+			(!(MakeMove(myCMCheckersBoard, numRowsInBoard, 2, squareNumber, squareNumber2, jumped)) && !whiteTurn)) {
+			cout << "\nERROR: Moving to that square is not legal, Try again.";
+			continue;
+		}
+		else {
+			DisplayBoard(myCMCheckersBoard, numRowsInBoard);
+
+			while (jumped) // EDITED THIS
+			{
+				if ((whiteTurn && IsJump(myCMCheckersBoard, numRowsInBoard, 1, moveTo.columns, moveTo.rows)) ||
+					(!whiteTurn && IsJump(myCMCheckersBoard, numRowsInBoard, 2, moveTo.columns, moveTo.rows))) {
+					// MOVE COMPLETED
+					break;
+				}
+				else {
+					moveFrom = moveTo;
+
+					while (!correctInput)
+					{
+						cout << "\nYou can jump again,  Please enter the next square you wish to move your checker to";
+
+						if (!(cin >> squareNumber)) {
+							squareNumber2 = -1;
+							cin.clear();
+							cin.ignore();
+							cout << "\nERROR: You did not enter an integer";
+							cout << "\nTry again";
+							continue;
+						}
+						else {
+							if (squareNumber2 > (numRowsInBoard * numRowsInBoard) - 1 || squareNumber2 < 0) {
+								cout << "\nERROR: It is not possible to move to a square that is not on the board";
+								cout << "\nTry again";
+								continue;
+							}
+							else if (!(checkerBelongsToPlayer(myCMCheckersBoard[moveFrom.rows][moveFrom.columns]) == -1)) {
+								cout << "ERROR: It is not possible to move to a square that is already occupied.";
+								cout << "\nTry again";
+								continue;
+							}
+							else if (abs(squareNumber - squareNumber2) == (numRowsInBoard - 1) || abs(squareNumber - squareNumber2) == (numRowsInBoard + 1)) {
+								cout << "\nERROR: You can jump with this checker, you must jump not move 1 space.";
+								cout << "\nTry again";
+								continue;
+							}
+
+						}
+						correctInput = true;
+					}
+
+					if ((!MakeMove(myCMCheckersBoard, numRowsInBoard, 1, squareNumber, squareNumber2, jumped) && whiteTurn) || 
+						(!MakeMove(myCMCheckersBoard, numRowsInBoard, 2, squareNumber, squareNumber2, jumped) && !whiteTurn)) {
+						cout << "\nERROR: Moving to that square is not legal, Try again.";
+						continue;
+					}
+					else {
+						DisplayBoard(myCMCheckersBoard, numRowsInBoard);
+					}
+
+				}
+				
+			}
+
+		}
+
+		// BROKEN OUT
+		if (CheckWin(myCMCheckersBoard, numRowsInBoard)) {
+			cout << "\nEnter any character to terminate the game then press the enter key";
+			gameEnded = true;
+		}
+		else {
+			DisplayBoard(myCMCheckersBoard, numRowsInBoard);
+			squareNumber = -1;
+			squareNumber2 = -1;
+			correctInput = false;
+			jumped = false;
+			whiteTurn = whiteTurn == true ? false : true;
+			continue;
+		}
+	}
 
 	return 0;
 }
@@ -219,7 +448,7 @@ void DisplayBoard(int CMCheckersBoard[MAX_ARRAY_SIZE][MAX_ARRAY_SIZE], int numRo
 int CountJumps(int CMCheckersBoard[MAX_ARRAY_SIZE][MAX_ARRAY_SIZE], int numRowsInBoard, int player, int xLocArray[], int yLocArray[])
 {
 	int JumpCounter = 0;
-	for (int i = 0; i < numRowsInBoard; i++)
+	for (int i = 0; i < MAX_PIECES; i++)
 	{
 		xLocArray[i] = -1;
 		yLocArray[i] = -1;
@@ -231,9 +460,10 @@ int CountJumps(int CMCheckersBoard[MAX_ARRAY_SIZE][MAX_ARRAY_SIZE], int numRowsI
 			if (checkerBelongsToPlayer(CMCheckersBoard[i][j])==player)
 			{
 				if (IsJump(CMCheckersBoard, numRowsInBoard, player, j, i))
-				{
+				{	
 					xLocArray[JumpCounter] = j;
 					yLocArray[JumpCounter] = i;
+					cout << "Checker: " << j << "," << i;
 					JumpCounter++;
 				}
 			}
@@ -248,14 +478,10 @@ bool CheckList(int inArray1[], int inArray2[], int xIndex, int yIndex)
 {
 	for (int i = 0; i < MAX_PIECES; i++)
 	{
-		if (xIndex = inArray1[xIndex])
+		if (xIndex == inArray1[i])
 		{
-			for (int i = 0; i < MAX_PIECES; i++)
-			{
-				if (yIndex = inArray2[yIndex])
-				{
-					return true;
-				}
+			if (yIndex == inArray2[i]) {
+				return true;
 			}
 		}
 	}
@@ -284,9 +510,13 @@ int CountMove1Squares(int CMCheckersBoard[MAX_ARRAY_SIZE][MAX_ARRAY_SIZE], int n
 			// We've got our player's checker
 			if (checkerBelongsToPlayer(CMCheckersBoard[i][j]) == player) {
 				if (IsMove1Square(CMCheckersBoard, numRowsInBoard, player, j, i)) {
+
 					xLocArray[singleMoveCounter] = j;
-					yLocArray[singleMoveCounter] = i;		
+					yLocArray[singleMoveCounter] = i;
+					//cout << "\nxLoc: " << j;
+					//cout << "\nyLoc: " << i;
 					singleMoveCounter++;
+					//cout << "\nCOUNTER++";
 				}
 			}
 		}
@@ -305,10 +535,13 @@ bool IsMove1Square(int CMCheckersBoard[MAX_ARRAY_SIZE][MAX_ARRAY_SIZE], int numR
 
 				if (yLoc + 1 <= numRowsInBoard - 1) {
 
-					if (checkerBelongsToPlayer(CMCheckersBoard[yLoc + 1][getWrappedCoordinate(xLoc - 1, numRowsInBoard)]) == 0) {
+					if (checkerBelongsToPlayer(CMCheckersBoard[yLoc + 1][getWrappedCoordinate(xLoc - 1, numRowsInBoard)]) == -1) {
+						//cout << "\n\tWRAPPED COORDS: " << yLoc + 1 << ","<< getWrappedCoordinate(xLoc - 1, numRowsInBoard);
+						//cout << "\n\tCAN_MOVE_1_SQUARE: " << "[" << yLoc << "," << xLoc << "]";
+						//cout << "\n\tVALUE: " << CMCheckersBoard[yLoc + 1][getWrappedCoordinate(xLoc - 1, numRowsInBoard)];
 						return true;
-					}
-					else if (checkerBelongsToPlayer(CMCheckersBoard[yLoc + 1][getWrappedCoordinate(xLoc + 1, numRowsInBoard)]) == 0) {
+					} else if (checkerBelongsToPlayer(CMCheckersBoard[yLoc + 1][getWrappedCoordinate(xLoc + 1, numRowsInBoard)]) == -1) {
+						//cout << "\nCHECKED RIGHT DIAG";
 						return true;
 					}
 
@@ -317,10 +550,12 @@ bool IsMove1Square(int CMCheckersBoard[MAX_ARRAY_SIZE][MAX_ARRAY_SIZE], int numR
 
 					if (CMCheckersBoard[xLoc][yLoc] == 3) {
 						if (yLoc - 1 >= 0) {
-							if (checkerBelongsToPlayer(CMCheckersBoard[yLoc + 1][getWrappedCoordinate(xLoc - 1, numRowsInBoard)]) == 0) {
+							if (checkerBelongsToPlayer(CMCheckersBoard[yLoc + 1][getWrappedCoordinate(xLoc - 1, numRowsInBoard)]) == -1) {
+								cout << "\nCAN_MOVE_1_SQUARE: " << "[" << xLoc << "," << yLoc << "]";
 								return true;
 							}
-							else if (checkerBelongsToPlayer(CMCheckersBoard[yLoc + 1][getWrappedCoordinate(xLoc + 1, numRowsInBoard)]) == 0) {
+							else if (checkerBelongsToPlayer(CMCheckersBoard[yLoc + 1][getWrappedCoordinate(xLoc + 1, numRowsInBoard)]) == -1) {
+								cout << "\nCAN_MOVE_1_SQUARE: " << "[" << xLoc << "," << yLoc << "]";
 								return true;
 							}
 						}
@@ -334,10 +569,12 @@ bool IsMove1Square(int CMCheckersBoard[MAX_ARRAY_SIZE][MAX_ARRAY_SIZE], int numR
 
 				if (yLoc - 1 >= 0) {
 					// DIAG. RIGHT
-					if (checkerBelongsToPlayer(CMCheckersBoard[yLoc - 1][getWrappedCoordinate(xLoc + 1, numRowsInBoard)]) == 0) {
+					if (checkerBelongsToPlayer(CMCheckersBoard[yLoc - 1][getWrappedCoordinate(xLoc + 1, numRowsInBoard)]) == -1) {
+						cout << "\nCAN_MOVE_1_SQUARE: " << "[" << xLoc << "," << yLoc << "]";
 						return true;
 					}
-					else if (checkerBelongsToPlayer(CMCheckersBoard[yLoc - 1][getWrappedCoordinate(xLoc - 1, numRowsInBoard)]) == 0) {
+					else if (checkerBelongsToPlayer(CMCheckersBoard[yLoc - 1][getWrappedCoordinate(xLoc - 1, numRowsInBoard)]) == -1) {
+						cout << "\nCAN_MOVE_1_SQUARE: " << "[" << xLoc << "," << yLoc << "]";
 						return true;
 					}
 				}
@@ -345,10 +582,12 @@ bool IsMove1Square(int CMCheckersBoard[MAX_ARRAY_SIZE][MAX_ARRAY_SIZE], int numR
 
 					if (CMCheckersBoard[xLoc][yLoc] == 6) {
 						if (yLoc + 1 <= numRowsInBoard - 1) {
-							if (checkerBelongsToPlayer(CMCheckersBoard[yLoc + 1][getWrappedCoordinate(xLoc - 1, numRowsInBoard)]) == 0) {
+							if (checkerBelongsToPlayer(CMCheckersBoard[yLoc + 1][getWrappedCoordinate(xLoc - 1, numRowsInBoard)]) == -1) {
+								cout << "\nCAN_MOVE_1_SQUARE: " << "[" << xLoc << "," << yLoc << "]";
 								return true;
 							}
-							else if (checkerBelongsToPlayer(CMCheckersBoard[yLoc + 1][getWrappedCoordinate(xLoc + 1, numRowsInBoard)]) == 0) {
+							else if (checkerBelongsToPlayer(CMCheckersBoard[yLoc + 1][getWrappedCoordinate(xLoc + 1, numRowsInBoard)]) == -1) {
+								cout << "\nCAN_MOVE_1_SQUARE: " << "[" << xLoc << "," << yLoc << "]";
 								return true;
 							}
 						}
@@ -375,9 +614,11 @@ bool IsJump(int CMCheckersBoard[MAX_ARRAY_SIZE][MAX_ARRAY_SIZE], int numRowsInBo
 				// DIAG. RIGHT
 				if (checkerBelongsToPlayer(CMCheckersBoard[yLoc + 1][getWrappedCoordinate(xLoc - 1, numRowsInBoard)]) == 2
 					&& CMCheckersBoard[yLoc + 1][getWrappedCoordinate(xLoc - 2, numRowsInBoard)] == 0) {
+					cout << "DIAG RIGHT";
 					return true;
 				} else if (checkerBelongsToPlayer(CMCheckersBoard[yLoc + 1][getWrappedCoordinate(xLoc + 1, numRowsInBoard)]) == 2
 					&& CMCheckersBoard[yLoc + 1][getWrappedCoordinate(xLoc + 2, numRowsInBoard)] == 0) {
+					cout << "DIAG RIGHT";
 					return true;
 				}
 
@@ -388,10 +629,12 @@ bool IsJump(int CMCheckersBoard[MAX_ARRAY_SIZE][MAX_ARRAY_SIZE], int numRowsInBo
 					if (yLoc - 1 >= 0) {
 						if (checkerBelongsToPlayer(CMCheckersBoard[yLoc - 1][getWrappedCoordinate(xLoc + 1, numRowsInBoard)]) == 2
 							&& CMCheckersBoard[yLoc - 1][getWrappedCoordinate(xLoc + 2, numRowsInBoard)] == 0) {
+							cout << "DIAG RIGHT";
 							return true;
 						}
 						else if (checkerBelongsToPlayer(CMCheckersBoard[yLoc - 1][getWrappedCoordinate(xLoc - 1, numRowsInBoard)]) == 2
 							&& CMCheckersBoard[yLoc - 1][getWrappedCoordinate(xLoc - 2, numRowsInBoard)] == 0) {
+							cout << "DIAG RIGHT";
 							return true;
 						}
 					}
@@ -407,9 +650,11 @@ bool IsJump(int CMCheckersBoard[MAX_ARRAY_SIZE][MAX_ARRAY_SIZE], int numRowsInBo
 				// DIAG. RIGHT
 				if (checkerBelongsToPlayer(CMCheckersBoard[yLoc - 1][getWrappedCoordinate(xLoc + 1, numRowsInBoard)]) == 1
 					&& CMCheckersBoard[yLoc - 1][getWrappedCoordinate(xLoc + 2, numRowsInBoard)] == 0) {
+					cout << "DIAG RIGHT";
 					return true;
 				} else if (checkerBelongsToPlayer(CMCheckersBoard[yLoc - 1][getWrappedCoordinate(xLoc - 1, numRowsInBoard)]) == 1
 					&& CMCheckersBoard[yLoc - 1][getWrappedCoordinate(xLoc - 2, numRowsInBoard)] == 0) {
+					cout << "DIAG RIGHT";
 					return true;
 				}
 			} else {
@@ -418,10 +663,12 @@ bool IsJump(int CMCheckersBoard[MAX_ARRAY_SIZE][MAX_ARRAY_SIZE], int numRowsInBo
 					if (yLoc + 1 <= numRowsInBoard - 1) {
 						if (checkerBelongsToPlayer(CMCheckersBoard[yLoc + 1][getWrappedCoordinate(xLoc - 1, numRowsInBoard)]) == 1
 							&& CMCheckersBoard[yLoc + 1][getWrappedCoordinate(xLoc - 2, numRowsInBoard)] == 0) {
+							cout << "DIAG RIGHT";
 							return true;
 						}
 						else if (checkerBelongsToPlayer(CMCheckersBoard[yLoc + 1][getWrappedCoordinate(xLoc + 1, numRowsInBoard)]) == 1
 							&& CMCheckersBoard[yLoc + 1][getWrappedCoordinate(xLoc + 2, numRowsInBoard)] == 0) {
+							cout << "DIAG RIGHT";
 							return true;
 						}
 					}
@@ -449,6 +696,7 @@ bool MakeMove(int CMCheckersBoard[MAX_ARRAY_SIZE][MAX_ARRAY_SIZE], int numRowsIn
 		CMCheckersBoard[pair.rows][pair.columns] = 0;
 		pair = convertSquareNumToArrayPos(numRowsInBoard, toSquareNum);
 		CMCheckersBoard[pair.rows][pair.columns] = ogPeice;
+		return true;
 
 	} else if (squareDifference == ( (2 * numRowsInBoard) - 2) || squareDifference == ((2 * numRowsInBoard) + 2)
 		|| squareDifference == ((3 * numRowsInBoard) - 2)) {
@@ -458,14 +706,14 @@ bool MakeMove(int CMCheckersBoard[MAX_ARRAY_SIZE][MAX_ARRAY_SIZE], int numRowsIn
 		if (checkerBelongsToPlayer(CMCheckersBoard[pair.rows][pair.columns]) == 1) {
 			if (!(CMCheckersBoard[pair.rows][pair.columns] == 3) && fromSquareNum > toSquareNum) {
 				// Moving the wrong way
-				cout << "\nError;  illegal move";
+				cout << "\nERROR: Illegal move.";
 				return false;
 			}
 		}
 		else if (checkerBelongsToPlayer(CMCheckersBoard[pair.rows][pair.columns]) == 2) {
 			if (!(CMCheckersBoard[pair.rows][pair.columns] == 6 && fromSquareNum < toSquareNum)) {
 				// Moving the wrong way
-				cout << "\nError;  illegal move";
+				cout << "\nERROR: Illegal move.";
 				return false;
 			}
 		}
@@ -478,14 +726,14 @@ bool MakeMove(int CMCheckersBoard[MAX_ARRAY_SIZE][MAX_ARRAY_SIZE], int numRowsIn
 			if (!(checkerBelongsToPlayer(CMCheckersBoard[pair.rows][pair.columns]) == 2)) {
 				pair = convertSquareNumToArrayPos(numRowsInBoard, fromSquareNum);
 				CMCheckersBoard[pair.rows][pair.columns] = ogPeice;
-				cout << "\nError;  illegal move";
+				cout << "\nERROR: Illegal move.";
 				return false;
 			}
 		} else {
 			if (!(checkerBelongsToPlayer(CMCheckersBoard[pair.rows][pair.columns]) == 1)) {
 				pair = convertSquareNumToArrayPos(numRowsInBoard, fromSquareNum);
 				CMCheckersBoard[pair.rows][pair.columns] = ogPeice;
-				cout << "\nError;  illegal move";
+				cout << "\nERROR: Illegal move.";
 				return false;
 			}
 		}
@@ -493,6 +741,7 @@ bool MakeMove(int CMCheckersBoard[MAX_ARRAY_SIZE][MAX_ARRAY_SIZE], int numRowsIn
 		CMCheckersBoard[pair.rows][pair.columns] = 0;
 		pair = convertSquareNumToArrayPos(numRowsInBoard, toSquareNum);
 		CMCheckersBoard[pair.rows][pair.columns] = ogPeice;
+		cout << "\nMoved Og Piece to : " << pair.rows << "," << pair.columns;
 		
 	} else {
 		// Can't have more than a double jump in one go, therefore this is an invalid move.
@@ -517,10 +766,16 @@ bool MakeMove(int CMCheckersBoard[MAX_ARRAY_SIZE][MAX_ARRAY_SIZE], int numRowsIn
 	if (player == 1 && ogPeice == 2 && pair.rows == (numRowsInBoard - 1)) {
 		// MULE WENT TO KING
 		cout << "\nWhite has created a Mule King, Red wins the game";
+		return true;
 	}
 	else if (player == 2 && ogPeice == 5 && pair.rows == 0) {
 		// MULE WENT TO KING
 		cout << "\nRed has created a Mule King,  White wins the game";
+		return true;
+	}
+
+	if (!jumped) {
+		jumped = true;
 	}
 
 	return true;
@@ -624,13 +879,35 @@ int getWrappedCoordinate(int locX, int numRowsInBoard) {
 		return locX % numRowsInBoard;
 	}
 	else if (locX < 0) {
-		return numRowsInBoard % locX;
+		return (locX % numRowsInBoard) + numRowsInBoard;;
 	}
 	else {
 		return locX;
 	}
 }
 
+bool isArrayEmpty(int myArray[], int numRowsInBoard)
+{
+	for (int i = 0; i < numRowsInBoard; i++)
+	{
+		if (myArray[i] != -1) {
+			return false;
+		}
+	}
+	return true;
+}
+
+bool isInArray(int locXArray[], int locYArray[], int maxPieces, int locX, int locY)
+{
+	for (int i = 0; i < maxPieces; i++)
+	{
+		if (locYArray[i] == locY == locXArray[i] == locX) {
+			return true;
+		}
+	}
+
+	return false;
+}
 // This method takes a board square number, and returns a Coordinate pair of the,
 //	coordinates inside the array.
 CoordinatePair convertSquareNumToArrayPos(int numRowsInBoard, int squareNum) {
