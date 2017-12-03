@@ -246,6 +246,7 @@ int CountJumps(int CMCheckersBoard[MAX_ARRAY_SIZE][MAX_ARRAY_SIZE], int numRowsI
 // TOBEIMPLEMENTED: Jason
 bool CheckList(int inArray1[], int inArray2[], int xIndex, int yIndex)
 {
+
 	return false;
 }
 // IMPLEMENTED: Max
@@ -282,7 +283,7 @@ int CountMove1Squares(int CMCheckersBoard[MAX_ARRAY_SIZE][MAX_ARRAY_SIZE], int n
 	return singleMoveCounter;
 }
 
-// TOBEIMPLEMENTED: Jason
+// IMPLEMENTED: Jason
 bool IsMove1Square(int CMCheckersBoard[MAX_ARRAY_SIZE][MAX_ARRAY_SIZE], int numRowsInBoard, int player, int xLoc, int yLoc)
 	{
 		if (checkerBelongsToPlayer(CMCheckersBoard[yLoc][xLoc])) {
