@@ -246,6 +246,20 @@ int CountJumps(int CMCheckersBoard[MAX_ARRAY_SIZE][MAX_ARRAY_SIZE], int numRowsI
 // TOBEIMPLEMENTED: Jason
 bool CheckList(int inArray1[], int inArray2[], int xIndex, int yIndex)
 {
+	for (int i = 0; i < MAX_PIECES; i++)
+	{
+		if (xIndex = inArray1[xIndex])
+		{
+			for (int i = 0; i < MAX_PIECES; i++)
+			{
+				if (yIndex = inArray2[yIndex])
+				{
+					return true;
+				}
+			}
+		}
+	}
+	
 	return false;
 }
 // IMPLEMENTED: Max
